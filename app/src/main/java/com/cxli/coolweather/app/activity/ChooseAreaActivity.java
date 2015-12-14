@@ -7,10 +7,12 @@ package com.cxli.coolweather.app.activity;
         import java.util.ArrayList;
         import java.util.List;
 
+        import android.Manifest;
         import android.app.Activity;
         import android.app.ProgressDialog;
         import android.content.Intent;
         import android.content.SharedPreferences;
+        import android.os.Build;
         import android.os.Bundle;
         import android.preference.PreferenceManager;
         import android.text.TextUtils;
@@ -25,6 +27,7 @@ package com.cxli.coolweather.app.activity;
 
         import com.cxli.coolweather.app.R;
         import com.cxli.coolweather.app.db.CoolWeatherDB;
+        import com.cxli.coolweather.app.db.CoolWeatherOpenHelper;
         import com.cxli.coolweather.app.model.City;
         import com.cxli.coolweather.app.model.County;
         import com.cxli.coolweather.app.model.Province;
@@ -45,6 +48,8 @@ public class ChooseAreaActivity extends Activity {
     private ArrayAdapter<String> adapter;
     private CoolWeatherDB coolWeatherDB;
     private List<String> dataList = new ArrayList<String>();
+
+    private CoolWeatherOpenHelper openHelper;
     /**
      * 省列表
      */
@@ -79,11 +84,14 @@ public class ChooseAreaActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.choose_area);
+
         listView = (ListView) findViewById(R.id.list_view);
         titleText = (TextView) findViewById(R.id.title_text);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
         coolWeatherDB = CoolWeatherDB.getInstance(this);
+        init();//初始化省市县级数据到数据库中
+
         listView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View view, int index,
@@ -98,10 +106,52 @@ public class ChooseAreaActivity extends Activity {
             }
         });
         queryProvinces();  // 加载省级数据
+
+       // Build.VERSION_CODES.M
+        //Manifest
     }
 
+    private void init() {
+        String[] pro = {"北京", "上海", "天津", "重庆", "黑龙江", "吉林", "辽宁",
+                "内蒙古", "河北", "山西", "陕西", "山东", "新疆", "西藏", "青海", "甘肃",
+                "宁夏", "河南", "江苏", "湖北", "浙江", "安徽", "福建", "江西", "湖南",
+                "贵州", "四川", "广东", "云南", "广西", "海南", "香港", "澳门", "台湾"};
+
+        Province p = new Province();
+        for (int i = 0; i < pro.length; i++) {
+            p.setProvinceName(pro[i]);
+            if (i < 10) {
+            p.setProvinceCode("CN0" + (i++));
+            } else {
+                p.setProvinceName("CN" + i);
+            }
+            coolWeatherDB.saveProvince(p);
+        }
+
+        String[] city = {"北京", "上海", "天津", "重庆", "哈尔滨", "齐齐哈尔", "牡丹江",
+                "佳木斯", "绥化", "黑河", "大兴安岭", "伊春", "大庆", "七台河", "鸡西", "鹤岗",
+                "双鸭山", "长春", "吉林", "延边", "四平", "通化", "白城", "辽源", "松原", "白山",
+                "沈阳", "大连", "鞍山", "抚顺", "本溪", "丹东", "锦州", "营口", "阜新", "辽阳",
+                "铁岭", "朝阳", "盘锦", "葫芦岛", "呼和浩特", "包头", "乌海", "乌兰察布", "通辽",
+                "兴安盟", "赤峰", "鄂尔多斯", "巴彦淖尔", "锡林郭勒", "呼伦贝尔", "阿拉善盟", "石家庄",
+                "保定", "张家口", "承德", "唐山", "廊坊", "沧州", "衡水", "邢台", "邯郸", "秦皇岛",};
+
+
+        City ci = new City();
+        for (int i = 0; i < city.length; i++) {
+            ci.setCityName(city[i]);
+            if (i < 10) {
+                ci.setCityCode("CN1010" + (i++));
+            } else {
+                ci.setCityCode("CN101" + (i++));
+            }
+
+            coolWeatherDB.saveCity(ci);
+        }
+
+    }
     /**
-     * 查询全国所有的省，优先从数据库查询，如果没有查询到再去服务器上查询。
+     * 查询全国所有的省，优先从数据库查询，如果没有查询到再对数据库进行初始化。
      */
     private void queryProvinces() {
         provinceList = coolWeatherDB.loadProvinces();
@@ -114,8 +164,6 @@ public class ChooseAreaActivity extends Activity {
             listView.setSelection(0);
             titleText.setText("中国");
             currentLevel = LEVEL_PROVINCE;
-        } else {
-            queryFromServer(null, "province");
         }
     }
 
@@ -133,8 +181,6 @@ public class ChooseAreaActivity extends Activity {
             listView.setSelection(0);
             titleText.setText(selectedProvince.getProvinceName());
             currentLevel = LEVEL_CITY;
-        } else {
-            queryFromServer(selectedProvince.getProvinceCode(), "city");
         }
     }
 
@@ -152,8 +198,6 @@ public class ChooseAreaActivity extends Activity {
             listView.setSelection(0);
             titleText.setText(selectedCity.getCityName());
             currentLevel = LEVEL_COUNTY;
-        } else {
-            queryFromServer(selectedCity.getCityCode(), "county");
         }
     }
 
