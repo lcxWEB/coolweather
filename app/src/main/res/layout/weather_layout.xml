@@ -8,6 +8,14 @@
         android:layout_height="50dp"
         android:background="#484e61">
 
+        <Button
+            android:id="@+id/home"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/home"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -15,6 +23,15 @@
             android:layout_centerInParent="true"
             android:textColor="#ffb7da"
             android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/refresh"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/refresh"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -23,7 +40,7 @@
         android:layout_weight="1"
         android:background="#27a5f9">
         <TextView
-            android:id="@+id/publish_text"
+            android:id="@+id/current_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -38,7 +55,7 @@
             android:layout_centerInParent="true"
             android:orientation="vertical">
             <TextView
-                android:id="@+id/current_date"
+                android:id="@+id/publish_text"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:gravity="center"

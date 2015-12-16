@@ -1,6 +1,7 @@
 package com.cxli.coolweather.app.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -8,6 +9,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,11 +23,14 @@ import com.cxli.coolweather.app.util.Utility;
 /**
  * Created by lcx on 2015/12/15.
  */
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements View.OnClickListener{
 
     public static final String key = "a1213f6e06e84d8286603bd7e6f8e8bd";
     private LinearLayout weatherInfoLayout;
     private TextView cityName;
+
+    private Button home;
+    private Button refresh;
     /**
      * 用于显示发布时间
      */
@@ -41,10 +47,16 @@ public class WeatherActivity extends Activity {
 
         weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info);
         cityName = (TextView) findViewById(R.id.city_name);
+        home = (Button) findViewById(R.id.home);
+        refresh = (Button) findViewById(R.id.refresh);
+
         publishText = (TextView) findViewById(R.id.publish_text);
         weatherDesp = (TextView) findViewById(R.id.weather_desp);
         tmp = (TextView) findViewById(R.id.tmp);
         currentDate = (TextView) findViewById(R.id.current_date);
+
+        home.setOnClickListener(this);
+        refresh.setOnClickListener(this);
 
         String cityCode = getIntent().getStringExtra("cityCode");
 
@@ -105,9 +117,32 @@ public class WeatherActivity extends Activity {
         cityName.setText(prefs.getString("city_name", ""));
         tmp.setText(prefs.getString("tmp", ""));
         weatherDesp.setText(prefs.getString("weather_desp", ""));
-        publishText.setText(prefs.getString("publish_time", ""));
-        currentDate.setText(prefs.getString("current_date", "") + "发布");
+        publishText.setText(prefs.getString("publish_time", "")+ "发布");
+        currentDate.setText(prefs.getString("current_date", ""));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityName.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+            case R.id.home:
+                Intent intent = new Intent(this, ChooseAreaActivity.class);
+                intent.putExtra("is_from_weather", true);
+                startActivity(intent);
+                break;
+            case R.id.refresh:
+                publishText.setText("同步中...");
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String cityCode = prefs.getString("city_code", "");
+                LogUtil.d("WeatherActivity...", cityCode);
+                if (!TextUtils.isEmpty(cityCode)) {
+                    queryFromServer(cityCode);
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
