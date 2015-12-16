@@ -9,6 +9,7 @@ package com.cxli.coolweather.app.activity;
 
         import android.Manifest;
         import android.app.Activity;
+        import android.app.ActivityManager;
         import android.app.ProgressDialog;
         import android.content.Intent;
         import android.content.SharedPreferences;
