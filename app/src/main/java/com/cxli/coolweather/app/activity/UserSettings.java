@@ -35,46 +35,48 @@ public class UserSettings extends Activity implements CompoundButton.OnCheckedCh
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.settings);
-        LogUtil.d("Settings", "come to Setting");
+
         //读取SharedPreferences中需要的数据
         //使用SharedPreferences来记录程序按钮的状态
         SharedPreferences prefs = getSharedPreferences(WelcomeActivity.PREF_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editors = prefs.edit();
         isAuto = prefs.getBoolean("isAuto", true);
+        isAutoButton = (Switch) findViewById(R.id.isauto);
+        setFreq = (LinearLayout)findViewById(R.id.setfreq);
 
         //获取设置的更新频率，默认8小时
         frequency = prefs.getLong("freq", 8);
-        isAutoButton = (Switch) findViewById(R.id.isauto);
-        setFreq = (LinearLayout)findViewById(R.id.setfreq);
         freq = (EditText) findViewById(R.id.freq);
         freq.setText(String.valueOf(frequency));
-
+        Intent intent = new Intent(this, AutoUpdateService.class);
         if (isAuto) {
             isAutoButton.setChecked(true);
             setFreq.setVisibility(View.VISIBLE);
-            editors.putLong("freq", Long.parseLong(freq.getText().toString()));
-            editors.commit();
-            Intent intent = new Intent(this, AutoUpdateService.class);
             startService(intent);
-            UserSettings.this.finish();
+            //UserSettings.this.finish();
         } else {
             isAutoButton.setChecked(false);
             setFreq.setVisibility(View.GONE);
+            stopService(intent);
         }
         isAutoButton.setOnCheckedChangeListener(this);
+        LogUtil.d("Settings", "come to Setting");
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         SharedPreferences.Editor editor = getSharedPreferences(WelcomeActivity.PREF_NAME, MODE_PRIVATE).edit();
+        Intent intent = new Intent(this, AutoUpdateService.class);
         if (isChecked) {
             editor.putBoolean("isAuto", true);
             setFreq.setVisibility(View.VISIBLE);
+            startService(intent);
             Toast.makeText(this, "允许自动更新", Toast.LENGTH_SHORT).show();
         } else {
             editor.putBoolean("isAuto", false);
             setFreq.setVisibility(View.GONE);
             Toast.makeText(this, "禁止自动更新", Toast.LENGTH_SHORT).show();
+            stopService(intent);
         }
         editor.commit();
     }
@@ -82,9 +84,9 @@ public class UserSettings extends Activity implements CompoundButton.OnCheckedCh
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         SharedPreferences.Editor editor = getSharedPreferences(WelcomeActivity.PREF_NAME, MODE_PRIVATE).edit();
         editor.putLong("freq", Long.parseLong(freq.getText().toString()));
         editor.commit();
+        super.onBackPressed();
     }
 }

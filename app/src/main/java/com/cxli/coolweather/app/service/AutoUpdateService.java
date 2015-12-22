@@ -14,6 +14,7 @@ import com.cxli.coolweather.app.activity.WelcomeActivity;
 import com.cxli.coolweather.app.receiver.AutoUpdateReceiver;
 import com.cxli.coolweather.app.util.HttpCallBackListener;
 import com.cxli.coolweather.app.util.HttpUtil;
+import com.cxli.coolweather.app.util.LogUtil;
 import com.cxli.coolweather.app.util.Utility;
 
 /**
@@ -39,7 +40,7 @@ public class AutoUpdateService extends Service {
         //获取设置的频率
         SharedPreferences prefs = getSharedPreferences(WelcomeActivity.PREF_NAME, MODE_PRIVATE);
         long frequency = prefs.getLong("freq", 8);
-
+        LogUtil.d("AutoUpdateService", frequency+"");
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         long freHour = frequency * 60 * 60 * 1000;
@@ -51,7 +52,8 @@ public class AutoUpdateService extends Service {
     }
 
     private void updateWeather() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences(WeatherActivity.PREF_WEATHER, MODE_PRIVATE);
         String cityCode = prefs.getString("city_code", "");
         String address = "https://api.heweather.com/x3/weather?cityid=" + cityCode
                 + "&key=" + WeatherActivity.KEY;

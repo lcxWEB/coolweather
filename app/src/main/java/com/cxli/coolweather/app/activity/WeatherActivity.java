@@ -135,8 +135,11 @@ public class WeatherActivity extends Activity{
                 goChoose();
                 return true;
             case R.id.settings:
-                Toast.makeText(this, "you cliked setting", Toast.LENGTH_SHORT).show();
+                /*Toast.makeText(this, "you cliked setting", Toast.LENGTH_SHORT).show();*/
                 goSettings();
+                return true;
+            case R.id.login:
+                Toast.makeText(this, "you cliked login", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -254,7 +257,6 @@ public class WeatherActivity extends Activity{
     private void goSettings() {
         Intent intent = new Intent(WeatherActivity.this, UserSettings.class);
         LogUtil.d("setting", "gosetting");
-        intent.putExtra("is_from_weather", true);
         WeatherActivity.this.startActivity(intent);
     }
 
