@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">酷狗天气</string>
 
-    <string name="hello_world">Hello world!</string>
+    <string name="weather"></string>
     <string name="action_settings">Settings</string>
+    <string name="kaiqi">开启酷狗之旅</string>
 </resources>

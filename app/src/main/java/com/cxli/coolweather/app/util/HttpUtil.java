@@ -3,6 +3,7 @@ package com.cxli.coolweather.app.util;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -30,6 +31,8 @@ public class HttpUtil {
                     connection.setReadTimeout(8000);
                     connection.setDoInput(true);
                     connection.setDoOutput(true);
+                    int responseCode = connection.getResponseCode();
+                    LogUtil.d("ImageTest", responseCode + "");
                     InputStream in = connection.getInputStream();
 
                     //对输入流进行读取
@@ -61,4 +64,5 @@ public class HttpUtil {
             }
         }).start();
     }
+
 }

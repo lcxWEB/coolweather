@@ -1,18 +1,29 @@
 package com.cxli.coolweather.app.activity;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cxli.coolweather.app.R;
 import com.cxli.coolweather.app.service.AutoUpdateService;
@@ -21,17 +32,28 @@ import com.cxli.coolweather.app.util.HttpUtil;
 import com.cxli.coolweather.app.util.LogUtil;
 import com.cxli.coolweather.app.util.Utility;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Objects;
+
 /**
  * Created by lcx on 2015/12/15.
  */
-public class WeatherActivity extends Activity implements View.OnClickListener{
+public class WeatherActivity extends Activity{
 
-    public static final String key = "a1213f6e06e84d8286603bd7e6f8e8bd";
-    private LinearLayout weatherInfoLayout;
+    public static final String KEY = "a1213f6e06e84d8286603bd7e6f8e8bd";
+
+    public static final String PREF_WEATHER = "pref_weather";
+    private RelativeLayout background;
+    private RelativeLayout weatherInfoLayout;
+    private LinearLayout cityDesp;
+    private RelativeLayout detail;
     private TextView cityName;
+    private ImageView image;
 
     private Button home;
     private Button refresh;
+    private CompoundButton isAutoButton;
     /**
      * 用于显示发布时间
      */
@@ -39,33 +61,54 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
     private TextView weatherDesp;
     private TextView tmp;
     private TextView currentDate;
+    private ProgressDialog progressDialog;
+
+    private TextView tigan;
+    private TextView shidu;
+    private TextView kejian;
+    private TextView fengxiang;
+
+    private TextView tomorrow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.weather_layout);
 
-        weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info);
+        //在activity中不显示图标icon
+        getActionBar().setDisplayShowHomeEnabled(false);
+
+        weatherInfoLayout = (RelativeLayout) findViewById(R.id.weather_info);
+        background = (RelativeLayout) findViewById(R.id.background);
+        cityDesp = (LinearLayout) findViewById(R.id.citydesp);
+        detail = (RelativeLayout) findViewById(R.id.detail);
+
         cityName = (TextView) findViewById(R.id.city_name);
-        home = (Button) findViewById(R.id.home);
-        refresh = (Button) findViewById(R.id.refresh);
 
         publishText = (TextView) findViewById(R.id.publish_text);
         weatherDesp = (TextView) findViewById(R.id.weather_desp);
         tmp = (TextView) findViewById(R.id.tmp);
+        image = (ImageView) findViewById(R.id.image);
+
         currentDate = (TextView) findViewById(R.id.current_date);
 
-        home.setOnClickListener(this);
-        refresh.setOnClickListener(this);
+        tigan = (TextView) findViewById(R.id.tigan);
+        shidu = (TextView) findViewById(R.id.shidu);
+        kejian = (TextView) findViewById(R.id.kejian);
+        fengxiang = (TextView) findViewById(R.id.fengxiang);
+
+        tomorrow = (TextView) findViewById(R.id.tomorrow);
+
+        isAutoButton = (CompoundButton) findViewById(R.id.isauto);
 
         String cityCode = getIntent().getStringExtra("cityCode");
 
         if (!TextUtils.isEmpty(cityCode)) {
             //有城市代号时就去查询天气
             publishText.setText("同步中...");
-            weatherInfoLayout.setVisibility(View.INVISIBLE);
-            cityName.setVisibility(View.INVISIBLE);
+            showProgressDialog();
+            detail.setVisibility(View.INVISIBLE);
+            cityDesp.setVisibility(View.INVISIBLE);
             queryFromServer(cityCode);
             LogUtil.d("MainA", cityCode);
         } else {
@@ -73,10 +116,37 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         }
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    //当menuitem被选中时调用
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                refreshWeather();
+                return true;
+            case R.id.home:
+                goChoose();
+                return true;
+            case R.id.settings:
+                Toast.makeText(this, "you cliked setting", Toast.LENGTH_SHORT).show();
+                goSettings();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void queryFromServer(String cityCode) {
 
         String address = "https://api.heweather.com/x3/weather?cityid=" + cityCode
-                + "&key=" + key;
+                + "&key=" + KEY;
 
         LogUtil.d("Main", address);
 
@@ -91,6 +161,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            closeProgressDialog();
                             showWeather();
                             LogUtil.d("Main", "showWeather");
                         }
@@ -103,50 +174,116 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        closeProgressDialog();
                         publishText.setText("同步失败");
                     }
                 });
             }
         });
-
-
-
     }
 
     private void showWeather() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = getSharedPreferences(PREF_WEATHER, MODE_PRIVATE);
         cityName.setText(prefs.getString("city_name", ""));
-        tmp.setText(prefs.getString("tmp", ""));
-        weatherDesp.setText(prefs.getString("weather_desp", ""));
+        tmp.setText("当前温度  " + prefs.getString("tmp", "") + "℃");
+        String weather_desp = prefs.getString("weather_desp", "");
+        weatherDesp.setText(weather_desp);
+        if (weather_desp.contains("晴")) {
+            image.setImageResource(R.drawable.sunny);
+        } else if (weather_desp.contains("云")) {
+            image.setImageResource(R.drawable.cloudy);
+        } else if (weather_desp.contains("雨")) {
+            image.setImageResource(R.drawable.rain);
+        } else if (weather_desp.contains("雪")) {
+            image.setImageResource(R.drawable.snow);
+        } else if (weather_desp.contains("阴")) {
+            image.setImageResource(R.drawable.overcast);
+        } else {
+            image.setImageResource(R.drawable.fog);
+        }
         publishText.setText(prefs.getString("publish_time", "")+ "发布");
         currentDate.setText(prefs.getString("current_date", ""));
-        weatherInfoLayout.setVisibility(View.VISIBLE);
-        cityName.setVisibility(View.VISIBLE);
 
-        Intent intent = new Intent(this, AutoUpdateService.class);
-        startService(intent);
+        tigan.setText(prefs.getString("tigan", "")+ "℃");
+        shidu.setText(prefs.getString("shidu", "") + "%");
+        kejian.setText(prefs.getString("kejian", "") + "km");
+        fengxiang.setText(prefs.getString("fengxiang", ""));
+
+        tomorrow.setText("天气类型 :（" +prefs.getString("tweather", "") + "） 温度区间 :（"
+                        + prefs.getString("mintmp", "") + "℃ - " + prefs.getString("maxtmp", "")
+                        + "℃） 降水概率 :（" + prefs.getString("pop", "") + "%）");
+
+        detail.setVisibility(View.VISIBLE);
+        cityDesp.setVisibility(View.VISIBLE);
+
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour >= 6 && hour <= 17) {
+            background.setBackgroundResource(R.drawable.day);
+        } else {
+            background.setBackgroundResource(R.drawable.night);
+        }
+
+        SharedPreferences pref = getSharedPreferences(WelcomeActivity.PREF_NAME, MODE_PRIVATE);
+        boolean isAuto = pref.getBoolean("isAuto", true);
+        if (isAuto) {
+            Intent intent = new Intent(this, AutoUpdateService.class);
+            startService(intent);
+        }
+    }
+
+
+    private void goChoose() {
+        Intent intent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
+        intent.putExtra("is_from_weather", true);
+        WeatherActivity.this.startActivity(intent);
+        WeatherActivity.this.finish();
+    }
+
+    private void refreshWeather() {
+        publishText.setText("同步中...");
+        showProgressDialog();
+        SharedPreferences prefs = getSharedPreferences(PREF_WEATHER, MODE_PRIVATE);
+        String cityCode = prefs.getString("city_code", "");
+        LogUtil.d("WeatherActivity...", cityCode);
+        if (!TextUtils.isEmpty(cityCode)) {
+            queryFromServer(cityCode);
+        }
+    }
+
+    private void goSettings() {
+        Intent intent = new Intent(WeatherActivity.this, UserSettings.class);
+        LogUtil.d("setting", "gosetting");
+        intent.putExtra("is_from_weather", true);
+        WeatherActivity.this.startActivity(intent);
     }
 
     @Override
-    public void onClick(View v) {
+    public void onBackPressed() {
 
-        switch (v.getId()) {
-            case R.id.home:
-                Intent intent = new Intent(this, ChooseAreaActivity.class);
-                intent.putExtra("is_from_weather", true);
-                startActivity(intent);
-                break;
-            case R.id.refresh:
-                publishText.setText("同步中...");
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                String cityCode = prefs.getString("city_code", "");
-                LogUtil.d("WeatherActivity...", cityCode);
-                if (!TextUtils.isEmpty(cityCode)) {
-                    queryFromServer(cityCode);
-                }
-                break;
-            default:
-                break;
+        super.onBackPressed();
+    }
+
+
+    /**
+     * 显示进度对话框
+     */
+    private void showProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载...");
+            progressDialog.setCancelable(true);
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+
+    /**
+     * 关闭进度对话框
+     */
+    private void closeProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
         }
     }
 }
