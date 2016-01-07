@@ -1,12 +1,8 @@
 package com.cxli.coolweather.app.util;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -15,6 +11,7 @@ import javax.net.ssl.HttpsURLConnection;
  * Created by cx.li on 2015/12/10.
  */
 public class HttpUtil {
+    private static final String TAG = "HttpUtil";
 
     public static void sendHttpRequest(final String address, final HttpCallBackListener listener) {
         new Thread(new Runnable() {
@@ -32,7 +29,7 @@ public class HttpUtil {
                     connection.setDoInput(true);
                     connection.setDoOutput(true);
                     int responseCode = connection.getResponseCode();
-                    LogUtil.d("ImageTest", responseCode + "");
+                    LogUtil.d(TAG, responseCode + "");
                     InputStream in = connection.getInputStream();
 
                     //对输入流进行读取
@@ -45,12 +42,12 @@ public class HttpUtil {
                     }
                     String response = sb.toString();
 
-                    LogUtil.d("MainAc", response);
+                    LogUtil.d(TAG, response);
 
                     if (listener != null) {
                         //回调onFinish方法
                         listener.onFinish(response);
-                        LogUtil.d("MainA", "onFinish");
+                        LogUtil.d(TAG, "onFinish");
                     }
                 } catch (Exception e) {
                     if (e != null) {

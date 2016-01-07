@@ -1,9 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">酷狗天气</string>
-
-    <string name="weather"></string>
-    <string name="action_settings">Settings</string>
-    <string name="kaiqi">开启酷狗之旅</string>
     <string name="weather_desp">体感</string>
     <string name="shidu">湿度</string>
     <string name="sight">能见度</string>

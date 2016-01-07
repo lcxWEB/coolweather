@@ -3,7 +3,6 @@ package com.cxli.coolweather.app.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.cxli.coolweather.app.activity.WeatherActivity;
 
@@ -20,6 +19,9 @@ import java.util.Locale;
  */
 public class Utility {
 
+    public static final String TAG = "Utility";
+
+
     /**
      * 解析服务器返回的JSON数据，并将解析出的数据存储到本地。
      */
@@ -29,25 +31,25 @@ public class Utility {
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather data service 3.0");
 
             JSONObject weatherInfo = jsonArray.getJSONObject(0);
-            LogUtil.d("Main", weatherInfo.toString());
+            LogUtil.d(TAG, weatherInfo.toString());
 
             JSONObject basic = weatherInfo.getJSONObject("basic");
-            LogUtil.d("Main", basic.toString());
+            LogUtil.d(TAG, basic.toString());
             String cityName = basic.getString("city");
-            LogUtil.d("Main",cityName);
+            LogUtil.d(TAG, cityName);
             String cityCode = basic.getString("id");
-            LogUtil.d("Main",cityCode);
+            LogUtil.d(TAG, cityCode);
             JSONObject update = basic.getJSONObject("update");
-            LogUtil.d("Main", update.toString());
+            LogUtil.d(TAG, update.toString());
             String publishTime = update.getString("loc");
-            LogUtil.d("Main",publishTime);
+            LogUtil.d(TAG, publishTime);
             JSONObject now = weatherInfo.getJSONObject("now");
-            LogUtil.d("Main",now.toString());
+            LogUtil.d(TAG, now.toString());
             JSONObject cond = now.getJSONObject("cond");
-            LogUtil.d("Main",cond.toString());
+            LogUtil.d(TAG, cond.toString());
 
             String weatherDesp = cond.getString("txt");
-            LogUtil.d("Main",weatherDesp);
+            LogUtil.d(TAG, weatherDesp);
             String code = cond.getString("code");
 
             String tigan = now.getString("fl");
@@ -57,7 +59,7 @@ public class Utility {
             String fengxiang = wind.getString("dir");
 
             String tmp = now.getString("tmp");
-            LogUtil.d("Main", tmp);
+            LogUtil.d(TAG, tmp);
 
             JSONArray dailyforecast = weatherInfo.getJSONArray("daily_forecast");
             JSONObject tomorrow = dailyforecast.getJSONObject(1);
@@ -68,9 +70,23 @@ public class Utility {
             String maxtmp = ttmp.getString("max");
             String mintmp = ttmp.getString("min");
 
+            JSONObject suggestion = weatherInfo.getJSONObject("suggestion");
+            JSONObject cloth = suggestion.getJSONObject("drsg");
+            String clothDet = cloth.getString("txt");
+
+            JSONObject sports = suggestion.getJSONObject("sport");
+            String sportDet = sports.getString("txt");
+
+            JSONObject trav = suggestion.getJSONObject("trav");
+            String travDet = trav.getString("txt");
+
+            JSONObject flu = suggestion.getJSONObject("flu");
+            String fluDet = flu.getString("txt");
+
             saveWeatherInfo(context, cityName, cityCode, tmp,
                     weatherDesp, code, publishTime, tigan, shidu, kejian, fengxiang,
-                    tweather, pop, maxtmp, mintmp);
+                    tweather, pop, maxtmp, mintmp, clothDet, sportDet, travDet, fluDet);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -83,11 +99,18 @@ public class Utility {
                                        String cityCode, String tmp, String weatherDesp,
                                        String code, String publishTime, String tigan,
                                        String shidu, String kejian, String fengxiang,
-                                       String tweather, String pop, String maxtmp, String mintmp) {
+                                       String tweather, String pop, String maxtmp, String mintmp,
+                                       String clothDet, String sportDet, String travDet, String fluDet) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
 
+        //未加viewpager前
         SharedPreferences.Editor editor = context.getSharedPreferences(WeatherActivity.PREF_WEATHER,
                 Context.MODE_PRIVATE).edit();
+
+        //加了viewpager后
+       /* SharedPreferences.Editor editor = context.getSharedPreferences(WeatherFragment.pref_name.append(cityCode).toString(),
+                Context.MODE_PRIVATE).edit();*/
+
         editor.putBoolean("city_selected", true);
         editor.putString("city_name", cityName);
         editor.putString("city_code", cityCode);
@@ -104,7 +127,14 @@ public class Utility {
         editor.putString("pop", pop);
         editor.putString("maxtmp", maxtmp);
         editor.putString("mintmp", mintmp);
+        editor.putString("cloth", clothDet);
+        editor.putString("sports", sportDet);
+        editor.putString("trav", travDet);
+        editor.putString("flu", fluDet);
 
         editor.commit();
+
+        SharedPreferences.Editor editor2 = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        editor2.putBoolean("city_selected", true);
     }
 }

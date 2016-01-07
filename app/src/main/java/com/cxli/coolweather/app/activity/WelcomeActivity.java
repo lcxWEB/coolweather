@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Window;
-import android.widget.ImageView;
 
 import com.cxli.coolweather.app.R;
 import com.cxli.coolweather.app.util.LogUtil;
@@ -35,7 +34,7 @@ public class WelcomeActivity extends Activity {
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what){
+            switch (msg.what) {
                 case GO_HOME:
                     goHome();
                     break;
@@ -76,7 +75,7 @@ public class WelcomeActivity extends Activity {
         //取得相应的值，如果没有该值，说明还未写入，用true作为默认值
         isFirstIn = preferences.getBoolean("isFirstIn", true);
 
-        if(!isFirstIn) {
+        if (!isFirstIn) {
             //如果不是第一次运行则，3秒后跳转到主界面
             mHandler.sendEmptyMessageDelayed(GO_HOME, SPLANSH_DELAY_MILLS);
         } else {

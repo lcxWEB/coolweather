@@ -1,27 +1,22 @@
 package com.cxli.coolweather.app.activity;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,22 +27,21 @@ import com.cxli.coolweather.app.util.HttpUtil;
 import com.cxli.coolweather.app.util.LogUtil;
 import com.cxli.coolweather.app.util.Utility;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
+
 
 /**
  * Created by lcx on 2015/12/15.
  */
-public class WeatherActivity extends Activity{
-
+public class WeatherActivity extends Activity {
     public static final String KEY = "a1213f6e06e84d8286603bd7e6f8e8bd";
 
     public static final String PREF_WEATHER = "pref_weather";
     private RelativeLayout background;
     private RelativeLayout weatherInfoLayout;
     private LinearLayout cityDesp;
-    private RelativeLayout detail;
+    private LinearLayout detail;
     private TextView cityName;
     private ImageView image;
 
@@ -70,6 +64,16 @@ public class WeatherActivity extends Activity{
 
     private TextView tomorrow;
 
+    private ScrollView scrollView;
+    private TextView clothDetail;
+    private TextView sportsDetail;
+    private TextView travDetail;
+    private TextView coldDetail;
+    private ArrayList<Fragment> fragments = new ArrayList<>();;
+
+    public static final String TAG = "WeatherActivity";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,11 +81,10 @@ public class WeatherActivity extends Activity{
 
         //在activity中不显示图标icon
         getActionBar().setDisplayShowHomeEnabled(false);
-
         weatherInfoLayout = (RelativeLayout) findViewById(R.id.weather_info);
         background = (RelativeLayout) findViewById(R.id.background);
         cityDesp = (LinearLayout) findViewById(R.id.citydesp);
-        detail = (RelativeLayout) findViewById(R.id.detail);
+        detail = (LinearLayout) findViewById(R.id.detail);
 
         cityName = (TextView) findViewById(R.id.city_name);
 
@@ -99,6 +102,12 @@ public class WeatherActivity extends Activity{
 
         tomorrow = (TextView) findViewById(R.id.tomorrow);
 
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
+        clothDetail = (TextView) findViewById(R.id.cloth_detail);
+        sportsDetail = (TextView) findViewById(R.id.sport_detail);
+        travDetail = (TextView) findViewById(R.id.travel_detail);
+        coldDetail = (TextView) findViewById(R.id.cold_detail);
+
         isAutoButton = (CompoundButton) findViewById(R.id.isauto);
 
         String cityCode = getIntent().getStringExtra("cityCode");
@@ -107,15 +116,15 @@ public class WeatherActivity extends Activity{
             //有城市代号时就去查询天气
             publishText.setText("同步中...");
             showProgressDialog();
-            detail.setVisibility(View.INVISIBLE);
+            scrollView.setVisibility(View.INVISIBLE);
             cityDesp.setVisibility(View.INVISIBLE);
             queryFromServer(cityCode);
-            LogUtil.d("MainA", cityCode);
+            LogUtil.d(TAG, cityCode);
         } else {
             showWeather();
         }
-    }
 
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -134,6 +143,9 @@ public class WeatherActivity extends Activity{
             case R.id.home:
                 goChoose();
                 return true;
+           /* case R.id.add:
+                addCity();
+                return true;*/
             case R.id.settings:
                 /*Toast.makeText(this, "you cliked setting", Toast.LENGTH_SHORT).show();*/
                 goSettings();
@@ -146,12 +158,19 @@ public class WeatherActivity extends Activity{
         }
     }
 
+    private void addCity() {
+        Intent intent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
+        intent.putExtra("is_from_weather", true);
+        WeatherActivity.this.startActivityForResult(intent, 0);
+
+    }
+
     private void queryFromServer(String cityCode) {
 
         String address = "https://api.heweather.com/x3/weather?cityid=" + cityCode
                 + "&key=" + KEY;
 
-        LogUtil.d("Main", address);
+        LogUtil.d(TAG, address);
 
         HttpUtil.sendHttpRequest(address, new HttpCallBackListener() {
             @Override
@@ -159,14 +178,14 @@ public class WeatherActivity extends Activity{
 
                 if (!TextUtils.isEmpty(response)) {
                     Utility.handleWeatherResponse(WeatherActivity.this, response);
-                    LogUtil.d("Main", "HandleWeatherResponse");
+                    LogUtil.d(TAG, "HandleWeatherResponse");
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
                             showWeather();
-                            LogUtil.d("Main", "showWeather");
+                            LogUtil.d(TAG, "showWeather");
                         }
                     });
                 }
@@ -204,19 +223,24 @@ public class WeatherActivity extends Activity{
         } else {
             image.setImageResource(R.drawable.fog);
         }
-        publishText.setText(prefs.getString("publish_time", "")+ "发布");
+        publishText.setText(prefs.getString("publish_time", "") + "发布");
         currentDate.setText(prefs.getString("current_date", ""));
 
-        tigan.setText(prefs.getString("tigan", "")+ "℃");
+        tigan.setText(prefs.getString("tigan", "") + "℃");
         shidu.setText(prefs.getString("shidu", "") + "%");
         kejian.setText(prefs.getString("kejian", "") + "km");
         fengxiang.setText(prefs.getString("fengxiang", ""));
 
-        tomorrow.setText("天气类型 :（" +prefs.getString("tweather", "") + "） 温度区间 :（"
-                        + prefs.getString("mintmp", "") + "℃ - " + prefs.getString("maxtmp", "")
-                        + "℃） 降水概率 :（" + prefs.getString("pop", "") + "%）");
+        tomorrow.setText("天气类型 :（" + prefs.getString("tweather", "") + "） 温度区间 :（"
+                + prefs.getString("mintmp", "") + "℃ - " + prefs.getString("maxtmp", "")
+                + "℃） 降水概率 :（" + prefs.getString("pop", "") + "%）");
 
-        detail.setVisibility(View.VISIBLE);
+        clothDetail.setText(prefs.getString("cloth", ""));
+        sportsDetail.setText(prefs.getString("sports", ""));
+        travDetail.setText(prefs.getString("trav", ""));
+        coldDetail.setText(prefs.getString("flu", ""));
+
+        scrollView.setVisibility(View.VISIBLE);
         cityDesp.setVisibility(View.VISIBLE);
 
         Calendar calendar = Calendar.getInstance();
@@ -235,7 +259,6 @@ public class WeatherActivity extends Activity{
         }
     }
 
-
     private void goChoose() {
         Intent intent = new Intent(WeatherActivity.this, ChooseAreaActivity.class);
         intent.putExtra("is_from_weather", true);
@@ -248,7 +271,7 @@ public class WeatherActivity extends Activity{
         showProgressDialog();
         SharedPreferences prefs = getSharedPreferences(PREF_WEATHER, MODE_PRIVATE);
         String cityCode = prefs.getString("city_code", "");
-        LogUtil.d("WeatherActivity...", cityCode);
+        LogUtil.d(TAG, cityCode);
         if (!TextUtils.isEmpty(cityCode)) {
             queryFromServer(cityCode);
         }
@@ -256,7 +279,7 @@ public class WeatherActivity extends Activity{
 
     private void goSettings() {
         Intent intent = new Intent(WeatherActivity.this, UserSettings.class);
-        LogUtil.d("setting", "gosetting");
+        LogUtil.d(TAG, "gosetting");
         WeatherActivity.this.startActivity(intent);
     }
 
@@ -265,7 +288,6 @@ public class WeatherActivity extends Activity{
 
         super.onBackPressed();
     }
-
 
     /**
      * 显示进度对话框

@@ -4,38 +4,28 @@ package com.cxli.coolweather.app.activity;
  * Created by cx.li on 2015/12/10.
  */
 
-        import java.util.ArrayList;
-        import java.util.List;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
-        import android.Manifest;
-        import android.app.Activity;
-        import android.app.ActivityManager;
-        import android.app.ProgressDialog;
-        import android.content.Intent;
-        import android.content.SharedPreferences;
-        import android.os.Build;
-        import android.os.Bundle;
-        import android.preference.PreferenceManager;
-        import android.text.TextUtils;
-        import android.util.Log;
-        import android.view.View;
-        import android.view.Window;
-        import android.widget.AdapterView;
-        import android.widget.AdapterView.OnItemClickListener;
-        import android.widget.ArrayAdapter;
-        import android.widget.ListView;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import com.cxli.coolweather.app.R;
+import com.cxli.coolweather.app.db.CoolWeatherDB;
+import com.cxli.coolweather.app.db.CoolWeatherOpenHelper;
+import com.cxli.coolweather.app.model.City;
+import com.cxli.coolweather.app.model.County;
+import com.cxli.coolweather.app.model.Province;
 
-        import com.cxli.coolweather.app.R;
-        import com.cxli.coolweather.app.db.CoolWeatherDB;
-        import com.cxli.coolweather.app.db.CoolWeatherOpenHelper;
-        import com.cxli.coolweather.app.model.City;
-        import com.cxli.coolweather.app.model.County;
-        import com.cxli.coolweather.app.model.Province;
-        import com.cxli.coolweather.app.util.HttpCallBackListener;
-        import com.cxli.coolweather.app.util.HttpUtil;
-        import com.cxli.coolweather.app.util.Utility;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ChooseAreaActivity extends Activity {
@@ -52,6 +42,7 @@ public class ChooseAreaActivity extends Activity {
     private List<String> dataList = new ArrayList<String>();
 
     private CoolWeatherOpenHelper openHelper;
+
     /**
      * 省列表
      */
@@ -80,6 +71,11 @@ public class ChooseAreaActivity extends Activity {
      * 是否从WeatherActivity中跳转过来。
      */
     private boolean isFromWeatherActivity;
+
+    /**
+     *
+     * @param savedInstanceState
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,9 +136,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < pro.length; i++) {
             p.setProvinceName(pro[i]);
             if (i < 9) {
-                p.setProvinceCode("CN0" + (i+1));
+                p.setProvinceCode("CN0" + (i + 1));
             } else {
-                p.setProvinceCode("CN" + (i+1));
+                p.setProvinceCode("CN" + (i + 1));
             }
             coolWeatherDB.saveProvince(p);
         }
@@ -158,15 +154,14 @@ public class ChooseAreaActivity extends Activity {
                 "铁岭", "朝阳", "盘锦", "葫芦岛"};
         String[] city8 = {"呼和浩特", "包头", "乌海", "乌兰察布", "通辽", "兴安盟", "赤峰", "鄂尔多斯", "巴彦淖尔",
                 "锡林郭勒", "呼伦贝尔", "阿拉善盟"};
-        String[] city9 ={"石家庄", "保定", "张家口", "承德", "唐山", "廊坊", "沧州", "衡水", "邢台", "邯郸", "秦皇岛"};
-
+        String[] city9 = {"石家庄", "保定", "张家口", "承德", "唐山", "廊坊", "沧州", "衡水", "邢台", "邯郸", "秦皇岛"};
 
 
         City ci = new City();
         for (int i = 0; i < city1.length; i++) {
             ci.setCityName(city1[i]);
             if (i < 9) {
-                ci.setCityCode("CN101010" + (i+1) +"00");
+                ci.setCityCode("CN101010" + (i + 1) + "00");
             } else {
                 ci.setCityCode("CN10101" + (i++));
             }
@@ -176,9 +171,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city2.length; i++) {
             ci.setCityName(city2[i]);
             if (i < 9) {
-                ci.setCityCode("CN101020" + (i+1) +"00");
+                ci.setCityCode("CN101020" + (i + 1) + "00");
             } else {
-                ci.setCityCode("CN10102" + (i+1));
+                ci.setCityCode("CN10102" + (i + 1));
             }
             ci.setProvinceId(2);
             coolWeatherDB.saveCity(ci);
@@ -187,9 +182,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city3.length; i++) {
             ci.setCityName(city3[i]);
             if (i < 9) {
-                ci.setCityCode("CN101030" + (i+1) +"00");
+                ci.setCityCode("CN101030" + (i + 1) + "00");
             } else {
-                ci.setCityCode("CN10103" + (i+1));
+                ci.setCityCode("CN10103" + (i + 1));
             }
             ci.setProvinceId(3);
             coolWeatherDB.saveCity(ci);
@@ -198,9 +193,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city4.length; i++) {
             ci.setCityName(city4[i]);
             if (i < 9) {
-                ci.setCityCode("CN101040" + (i+1) +"00");
+                ci.setCityCode("CN101040" + (i + 1) + "00");
             } else {
-                ci.setCityCode("CN10104" + (i+1));
+                ci.setCityCode("CN10104" + (i + 1));
             }
             ci.setProvinceId(4);
             coolWeatherDB.saveCity(ci);
@@ -211,9 +206,9 @@ public class ChooseAreaActivity extends Activity {
                 ci.setCityCode("CN101051002");
             } else {
                 if (i < 9) {
-                    ci.setCityCode("CN101050" + (i+1) + "01");
+                    ci.setCityCode("CN101050" + (i + 1) + "01");
                 } else {
-                    ci.setCityCode("CN10105" + (i+1) + "01");
+                    ci.setCityCode("CN10105" + (i + 1) + "01");
                 }
             }
             ci.setProvinceId(5);
@@ -223,9 +218,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city6.length; i++) {
             ci.setCityName(city6[i]);
             if (i < 9) {
-                ci.setCityCode("CN101060" + (i+1) + "01");
+                ci.setCityCode("CN101060" + (i + 1) + "01");
             } else {
-                ci.setCityCode("CN10106" + (i+1) + "01");
+                ci.setCityCode("CN10106" + (i + 1) + "01");
             }
             ci.setProvinceId(6);
             coolWeatherDB.saveCity(ci);
@@ -234,9 +229,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city7.length; i++) {
             ci.setCityName(city7[i]);
             if (i < 9) {
-                ci.setCityCode("CN101070" + (i+1) + "01");
+                ci.setCityCode("CN101070" + (i + 1) + "01");
             } else {
-                ci.setCityCode("CN10107" + (i+1) + "01");
+                ci.setCityCode("CN10107" + (i + 1) + "01");
             }
             ci.setProvinceId(7);
             coolWeatherDB.saveCity(ci);
@@ -245,9 +240,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city8.length; i++) {
             ci.setCityName(city8[i]);
             if (i < 9) {
-                ci.setCityCode("CN101080" + (i+1) + "01");
+                ci.setCityCode("CN101080" + (i + 1) + "01");
             } else {
-                ci.setCityCode("CN10108" + (i+1) + "01");
+                ci.setCityCode("CN10108" + (i + 1) + "01");
             }
             ci.setProvinceId(8);
             coolWeatherDB.saveCity(ci);
@@ -255,9 +250,9 @@ public class ChooseAreaActivity extends Activity {
         for (int i = 0; i < city9.length; i++) {
             ci.setCityName(city9[i]);
             if (i < 9) {
-                ci.setCityCode("CN101090" + (i+1) + "01");
+                ci.setCityCode("CN101090" + (i + 1) + "01");
             } else {
-                ci.setCityCode("CN10109" + (i+1) + "01");
+                ci.setCityCode("CN10109" + (i + 1) + "01");
             }
             ci.setProvinceId(9);
             coolWeatherDB.saveCity(ci);

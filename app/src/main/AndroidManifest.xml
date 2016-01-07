@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cxli.coolweather.app" >
+    package="com.cxli.coolweather.app">
 
-    <uses-feature android:name="android.hardware.sensor.compass"
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
         android:required="true" />
 
-    <uses-sdk android:minSdkVersion="19"
+    <uses-sdk
         android:maxSdkVersion="22"
-        android:targetSdkVersion="22"/>
+        android:minSdkVersion="19"
+        android:targetSdkVersion="22" />
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:icon="@drawable/lancher"
         android:label="@string/app_name">
 
-        <activity android:name=".activity.WelcomeActivity"
+        <activity
+            android:name=".activity.WelcomeActivity"
             android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,22 +28,20 @@
         </activity>
 
         <activity android:name=".activity.GuideActivity"></activity>
-        <activity android:name=".activity.ChooseAreaActivity"
-            android:theme="@android:style/Theme.Holo.Light" >
-        </activity>
-        <activity android:name=".activity.WeatherActivity"
-            android:theme="@android:style/Theme.Holo.Light.DarkActionBar"
-            android:label="@string/app_name">
-        </activity>
+        <activity
+            android:name=".activity.ChooseAreaActivity"
+            android:theme="@android:style/Theme.Holo.Light"></activity>
+        <activity
+            android:name=".activity.WeatherActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Holo.Light.DarkActionBar"></activity>
 
-        <activity android:name=".activity.UserSettings"
-            android:theme="@android:style/Theme.Holo.Light">
-        </activity>
+        <activity
+            android:name=".activity.UserSettings"
+            android:theme="@android:style/Theme.Holo.Light"></activity>
 
-        <service android:name=".service.AutoUpdateService">
-        </service>
-        <receiver android:name=".receiver.AutoUpdateReceiver">
-        </receiver>
+        <service android:name=".service.AutoUpdateService"></service>
+        <receiver android:name=".receiver.AutoUpdateReceiver"></receiver>
 
     </application>
 

@@ -20,7 +20,7 @@ import com.cxli.coolweather.app.util.LogUtil;
 /**
  * Created by cx.li on 2015/12/21.
  */
-public class UserSettings extends Activity implements CompoundButton.OnCheckedChangeListener{
+public class UserSettings extends Activity implements CompoundButton.OnCheckedChangeListener {
 
     private boolean isAuto;
     private Switch isAutoButton;
@@ -42,7 +42,7 @@ public class UserSettings extends Activity implements CompoundButton.OnCheckedCh
         SharedPreferences.Editor editors = prefs.edit();
         isAuto = prefs.getBoolean("isAuto", true);
         isAutoButton = (Switch) findViewById(R.id.isauto);
-        setFreq = (LinearLayout)findViewById(R.id.setfreq);
+        setFreq = (LinearLayout) findViewById(R.id.setfreq);
 
         //获取设置的更新频率，默认8小时
         frequency = prefs.getLong("freq", 8);
