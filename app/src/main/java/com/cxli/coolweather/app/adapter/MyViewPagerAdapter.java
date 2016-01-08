@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.cxli.coolweather.app.R;
-import com.cxli.coolweather.app.activity.ChooseAreaActivity;
+import com.cxli.coolweather.app.activity.WeatherActivity;
 import com.cxli.coolweather.app.activity.WelcomeActivity;
 
 import java.util.ArrayList;
@@ -60,7 +60,9 @@ public class MyViewPagerAdapter extends PagerAdapter {
     }
 
     private void goHome() {
-        Intent intent = new Intent(activity, ChooseAreaActivity.class);
+//        Intent intent = new Intent(activity, ChooseAreaActivity.class);
+        //加了DrawerLayout后，直接跳转到weatherActivity
+        Intent intent = new Intent(activity, WeatherActivity.class);
         activity.startActivity(intent);
         activity.finish();
     }

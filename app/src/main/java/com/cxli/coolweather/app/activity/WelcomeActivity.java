@@ -47,7 +47,9 @@ public class WelcomeActivity extends Activity {
 
     private void goHome() {
 
-        Intent intent = new Intent(WelcomeActivity.this, ChooseAreaActivity.class);
+//        Intent intent = new Intent(WelcomeActivity.this, ChooseAreaActivity.class);
+        //加了DrawerLayout后，直接跳转到weatherActivity
+        Intent intent = new Intent(WelcomeActivity.this, WeatherActivity.class);
         WelcomeActivity.this.startActivity(intent);
         WelcomeActivity.this.finish();
     }

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="app_name">天气</string>
+
     <string name="weather_desp">体感</string>
     <string name="shidu">湿度</string>
     <string name="sight">能见度</string>
@@ -10,4 +13,7 @@
     <string name="sportsto">运动指数</string>
     <string name="travelto">旅游指数</string>
     <string name="fluto">感冒指数</string>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

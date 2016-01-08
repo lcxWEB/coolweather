@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.cxli.coolweather.app.R;
 import com.cxli.coolweather.app.db.CoolWeatherDB;
-import com.cxli.coolweather.app.db.CoolWeatherOpenHelper;
 import com.cxli.coolweather.app.model.City;
 import com.cxli.coolweather.app.model.County;
 import com.cxli.coolweather.app.model.Province;
@@ -40,8 +39,6 @@ public class ChooseAreaActivity extends Activity {
     private ArrayAdapter<String> adapter;
     private CoolWeatherDB coolWeatherDB;
     private List<String> dataList = new ArrayList<String>();
-
-    private CoolWeatherOpenHelper openHelper;
 
     /**
      * 省列表
