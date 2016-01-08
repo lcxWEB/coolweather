@@ -178,10 +178,11 @@ public class WeatherActivity extends Activity {
 
     private void initData() {
         coolWeatherDB = CoolWeatherDB.getInstance(this);
+       /* //获取省份列表
         provinceList = coolWeatherDB.loadProvinces();
         if (provinceList.size() <= 0) {
             init();//初始化省市县级数据到数据库中
-        }
+        }*/
         queryProvinces();  // 加载省级数据
 
         SharedPreferences prefs = getSharedPreferences(PREF_WEATHER, MODE_PRIVATE);
@@ -334,6 +335,7 @@ public class WeatherActivity extends Activity {
 
     private void queryProvinces() {
         provinceList = coolWeatherDB.loadProvinces();
+        LogUtil.d(TAG, provinceList.size()+"省级数据");
         if (provinceList.size() > 0) {
             dataList.clear();
             for (Province province : provinceList) {

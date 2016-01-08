@@ -11,22 +11,24 @@ import android.view.Window;
 import com.cxli.coolweather.app.R;
 import com.cxli.coolweather.app.util.LogUtil;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 
 /**
  * Created by lcx on 2015/12/19.
  */
 public class WelcomeActivity extends Activity {
 
-    boolean isFirstIn = false;
-
+    public static final String PREF_NAME = "init_setting";
     private static final int GO_HOME = 1000;
     private static final int GO_GUIDE = 1001;
 
     //延迟3秒
     private static final long SPLANSH_DELAY_MILLS = 3000;
-
-    public static final String PREF_NAME = "init_setting";
-
+    boolean isFirstIn = false;
     /**
      * Handler:跳转到不同界面
      */
@@ -81,7 +83,36 @@ public class WelcomeActivity extends Activity {
             //如果不是第一次运行则，3秒后跳转到主界面
             mHandler.sendEmptyMessageDelayed(GO_HOME, SPLANSH_DELAY_MILLS);
         } else {
+            importDatabase();
             mHandler.sendEmptyMessageDelayed(GO_GUIDE, SPLANSH_DELAY_MILLS);
+        }
+    }
+
+    private void importDatabase() {
+        //存放数据库的目录
+        String path = "/data/data/com.cxli.coolweather.app/databases";
+        File dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        //数据库文件
+        File file = new File(dir, "cool_weather");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                //加载需要导入的数据库
+                InputStream is = this.getApplicationContext().getResources().openRawResource(R.raw.cool_weather);
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] buffer = new byte[1024];
+                int count = 0;
+                while ((count = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, count);
+                }
+                is.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
